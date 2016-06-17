@@ -7,7 +7,7 @@ static list_head *list_create()
 {
 	list_head *head;
 
-	head = (list_head *)malloc(sizeof(list_head));
+	head = (list_head *)emalloc(sizeof(list_head));
 	if (head) {
 		head->size = 0;
 		head->head = NULL;
@@ -20,7 +20,7 @@ static int list_add_head(list_head *head, zval *value)
 {
 	list_node *node;
 	node = (list_node *)emalloc(sizeof(list_node));
-	if (!node) 
+	if (!node)
 		return 0;
 	node->value = value;
 	node->prev = NULL;
@@ -28,9 +28,9 @@ static int list_add_head(list_head *head, zval *value)
 	if (head->head)
 		head->head->prev = node;
 	head->head = node;
-	
+
 	if (!head->tail)
-		head->tail = head->head;	
+		head->tail = head->head;
 	head->size++;
 
 	return 1;
@@ -39,7 +39,7 @@ static int list_add_head(list_head *head, zval *value)
 static int list_add_tail(list_head *head, zval *value)
 {
 	list_node *node;
-	node = (list_node *)emalloc(sizeof(list_node));	
+	node = (list_node *)emalloc(sizeof(list_node));
 	if (!node)
 		return 0;
 	node->value = value;
@@ -82,7 +82,7 @@ static int list_delete_index(list_head *head, int index)
 	} else {
 		head->tail = curr->prev;
 	}
-	free(curr);
+	efree(curr);
 	return 1;
 }
 
@@ -112,7 +112,7 @@ static int list_length(list_head *head)
 {
 	if (head)
 		return head->size;
-	else 
+	else
 		return 0;
 }
 
@@ -123,10 +123,10 @@ static void list_destroy(list_head *head)
 	while(curr)
 	{
 		next = curr->next;
-		free(curr);
+		efree(curr);
 		curr = next;
 	}
-	free(head);
+	efree(head);
 }
 
 static zend_function_entry linklist_functions[] = {
@@ -149,7 +149,7 @@ ZEND_FUNCTION(list_create)
 	list = list_create();
 	if (!list) {
 		RETURN_NULL();
-    } else { 
+    } else {
 		ZEND_REGISTER_RESOURCE(return_value, list, le_php_list);
     }
 }
@@ -164,9 +164,9 @@ ZEND_FUNCTION(list_add_head)
     }
 	ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
 	if(list_add_head(list, value)) {
-        //PHPWRITE(Z_STRVAL_P(value), Z_STRLEN_P(value));     
+        //PHPWRITE(Z_STRVAL_P(value), Z_STRLEN_P(value));
         RETURN_TRUE;
-    } 
+    }
     RETURN_FALSE;
 }
 
@@ -183,7 +183,49 @@ ZEND_FUNCTION(list_fetch_head)
     if (!res) {
         RETURN_NULL();
     } else {
-        RETURN_ZVAL(retval, 1, 0);
+        switch (Z_TYPE_P(retval)) {
+        case IS_NULL:
+            RETVAL_STRING("NULL", 1);
+            break;
+
+        case IS_BOOL:
+            RETVAL_STRING("boolean", 1);
+            break;
+
+        case IS_LONG:
+            RETVAL_STRING("integer", 1);
+            break;
+
+        case IS_DOUBLE:
+            RETVAL_STRING("double", 1);
+            break;
+
+        case IS_STRING:
+            RETVAL_STRING("string", 1);
+            break;
+
+        case IS_ARRAY:
+            RETVAL_STRING("array", 1);
+            break;
+
+        case IS_OBJECT:
+            RETVAL_STRING("object", 1);
+            break;
+
+        case IS_RESOURCE:
+            {
+                char *type_name;
+                type_name = zend_rsrc_list_get_rsrc_type(Z_LVAL_P(retval) TSRMLS_CC);
+                if (type_name) {
+                    RETVAL_STRING("resource", 1);
+                    break;
+                }
+            }
+
+        default:
+            RETVAL_STRING("unknown type", 1);
+        }
+        //RETURN_ZVAL(retval, 1, 0);
     }
 }
 
@@ -197,8 +239,8 @@ ZEND_FUNCTION(list_add_tail)
     }
     ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
     list_add_tail(list, value);
-    RETURN_TRUE;     
-} 
+    RETURN_TRUE;
+}
 
 ZEND_FUNCTION(list_fetch_tail)
 {
@@ -260,6 +302,7 @@ ZEND_FUNCTION(list_destroy)
         list_destroy(list);
         freed = 1;
     }
+    RETURN_TRUE;
 }
 
 ZEND_FUNCTION(list_element_nums)
@@ -281,7 +324,7 @@ ZEND_MINIT_FUNCTION(linklist)
 
 zend_module_entry linklist_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
-	STANDARD_MODULE_HEADER, 
+	STANDARD_MODULE_HEADER,
 #endif
 	"linklist",
 	linklist_functions,

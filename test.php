@@ -3,12 +3,15 @@
 
 $list = list_create();
 
-var_dump($list);
 
-for ($i = 0; $i < 111; $i++) {
+for ($i = 0; $i < 5; $i++) {
     //var_dump(list_add_head($list, "elements"));
     list_add_head($list, "elements");
 }
 
-var_dump(list_fetch_index($list, 3));
+echo list_element_nums($list);
+
+var_dump(list_fetch_tail($list));
+
+var_dump(list_destroy($list));
 
