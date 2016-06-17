@@ -11,7 +11,7 @@ for ($i = 0; $i < 5; $i++) {
 
 echo list_element_nums($list);
 
-var_dump(list_fetch_tail($list));
+var_dump(list_fetch_head($list));
 
 var_dump(list_destroy($list));
 
