@@ -7,8 +7,10 @@ static void list_destroy_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	if (!freed) {
 		list_head *list;
+
 		list = (list_head *)rsrc->ptr;
 		list_destroy(list);
+
 		freed = 1;
 	}
 }
@@ -158,6 +160,7 @@ ZEND_FUNCTION(list_create)
 	list_head *list;
 	list = list_create();
 	if (!list) {
+        php_printf("list_create error!\n");
 		RETURN_NULL();
     } else {
 		ZEND_REGISTER_RESOURCE(return_value, list, le_php_list);
@@ -172,9 +175,14 @@ ZEND_FUNCTION(list_add_head)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rz", &lrc, &value) == FAILURE) {
 		RETURN_FALSE;
     }
-	ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        php_printf("list_add_head fetch resource error!\n");
+        RETURN_FALSE;
+    }
 	if(list_add_head(list, value)) {
         PHPWRITE(Z_STRVAL_P(value), Z_STRLEN_P(value));
+        php_printf("\n");
         RETURN_TRUE;
     }
     RETURN_FALSE;
@@ -182,60 +190,25 @@ ZEND_FUNCTION(list_add_head)
 
 ZEND_FUNCTION(list_fetch_head)
 {
-    zval *lrc,*retval;
+    zval *retval, *lrc;
     list_head *list;
     int res;
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        php_printf("list_fetch_head fetch resource error!\n");
+        RETURN_FALSE;
+    }
+
     res = list_fetch(list, 0, &retval);
+
     if (!res) {
+        php_printf("list_fetch_head fetch resource error\n");
         RETURN_NULL();
     } else {
-        switch (Z_TYPE_P(retval)) {
-        case IS_NULL:
-            RETVAL_STRING("NULL", 1);
-            break;
-
-        case IS_BOOL:
-            RETVAL_STRING("boolean", 1);
-            break;
-
-        case IS_LONG:
-            RETVAL_STRING("integer", 1);
-            break;
-
-        case IS_DOUBLE:
-            RETVAL_STRING("double", 1);
-            break;
-
-        case IS_STRING:
-            RETVAL_STRING("string", 1);
-            break;
-
-        case IS_ARRAY:
-            RETVAL_STRING("array", 1);
-            break;
-
-        case IS_OBJECT:
-            RETVAL_STRING("object", 1);
-            break;
-
-        case IS_RESOURCE:
-            {
-                char *type_name;
-                type_name = zend_rsrc_list_get_rsrc_type(Z_LVAL_P(retval) TSRMLS_CC);
-                if (type_name) {
-                    RETVAL_STRING("resource", 1);
-                    break;
-                }
-            }
-
-        default:
-            RETVAL_STRING("unknown type", 1);
-        }
-        //RETURN_ZVAL(retval, 1, 0);
+        RETURN_ZVAL(retval, 1, 0);
     }
 }
 
@@ -247,7 +220,11 @@ ZEND_FUNCTION(list_add_tail)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rz", &lrc, &value) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        php_printf("list_add_tail fetch resource error!\n");
+        RETURN_FALSE;
+    }
     list_add_tail(list, value);
     RETURN_TRUE;
 }
@@ -260,7 +237,10 @@ ZEND_FUNCTION(list_fetch_tail)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        RETURN_FALSE;
+    }
     res = list_fetch(list, list_length(list) - 1, &retval);
     if (!res) {
         RETURN_NULL();
@@ -277,7 +257,10 @@ ZEND_FUNCTION(list_fetch_index)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &lrc, &index) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        RETURN_FALSE;
+    }
     res = list_fetch(list, index, &retval);
     if (!res) {
         RETURN_NULL();
@@ -293,7 +276,10 @@ ZEND_FUNCTION(list_delete_index)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &lrc, &index) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE(list, list_head *, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        RETURN_FALSE;
+    }
     if (list_delete_index(list, index)) {
         RETURN_TRUE;
     }
@@ -307,7 +293,10 @@ ZEND_FUNCTION(list_destroy)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        RETURN_FALSE;
+    }
     if (!freed){
         list_destroy(list);
         freed = 1;
@@ -322,15 +311,43 @@ ZEND_FUNCTION(list_element_nums)
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE(list, list_head*, &lrc, -1, PHP_LIST_DESC_NAME, le_php_list);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        RETURN_FALSE;
+    }
     RETURN_LONG(list_length(list));
 }
 
 
 ZEND_MINIT_FUNCTION(linklist)
 {
-    le_php_list = zend_register_list_destructors_ex(list_destroy_handler, NULL, PHP_LIST_DESC_NAME, module_number);
+    le_php_list = zend_register_list_destructors_ex(
+        list_destroy_handler, NULL, "List Resource", module_number);
 	return SUCCESS;
+}
+
+ZEND_MSHUTDOWN_FUNCTION(linklist)
+{
+    return SUCCESS;
+}
+
+ZEND_RINIT_FUNCTION(linklist)
+{
+    return SUCCESS;
+}
+
+ZEND_RSHUTDOWN_FUNCTION(linklist)
+{
+    return SUCCESS;
+}
+
+ZEND_MINFO_FUNCTION(linklist)
+{
+    php_info_print_table_start();
+    php_info_print_table_header(2, "php link list support", "enable");
+    php_info_print_table_row(2, "Version", PHP_LINKLIST_VERSION);
+    php_info_print_table_row(2, "Author", PHP_LINKLIST_AUTHOR);
+    php_info_print_table_end();
 }
 
 zend_module_entry linklist_module_entry = {
@@ -340,10 +357,10 @@ zend_module_entry linklist_module_entry = {
 	"linklist",
 	linklist_functions,
 	ZEND_MINIT(linklist),
-	NULL,
-	NULL,
-	NULL,
-	NULL,
+	ZEND_MSHUTDOWN(linklist),
+	ZEND_RINIT(linklist),
+	ZEND_RSHUTDOWN(linklist),
+	ZEND_MINFO(linklist),
 #if ZEND_MODULE_API_NO >= 20010901
 	"1.0",
 #endif

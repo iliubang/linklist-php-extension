@@ -3,15 +3,11 @@
 
 $list = list_create();
 
-
-for ($i = 0; $i < 5; $i++) {
-    //var_dump(list_add_head($list, "elements"));
-    list_add_head($list, "elements");
+for ($i = 0; $i < 10; $i++) {
+    list_add_head($list, "test_" . $i);
 }
-
-echo list_element_nums($list);
 
 var_dump(list_fetch_head($list));
 
-var_dump(list_destroy($list));
+//echo PHP_EOL . list_element_nums($list) . PHP_EOL;
 
