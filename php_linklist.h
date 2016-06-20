@@ -34,13 +34,13 @@ struct _list_head {
 
 #define PHP_LIST_DESC_NAME "php双向链表资源描述符"
 
-static list_head *list_create();
-static int list_add_head(list_head *head, zval *value);
-static int list_add_tail(list_head *head, zval *value);
-static int list_delete_index(list_head *head, int index);
-static int list_fetch(list_head *head, int index, zval **retval); 
-static int list_length(list_head *head);
-static void list_destroy(list_head *head);
+list_head *list_create();
+int list_add_head(list_head *head, zval *value);
+int list_add_tail(list_head *head, zval *value);
+int list_delete_index(list_head *head, int index);
+int list_fetch(list_head *head, int index, zval **retval); 
+int list_length(list_head *head);
+void list_destroy(list_head *head);
 
 
 #define phpext_linklist_ptr &linklist_module_entry

@@ -3,7 +3,7 @@
 static int le_php_list;
 static int freed = 0;
 
-static void list_destroy_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+void list_destroy_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	if (!freed) {
 		list_head *list;
@@ -15,7 +15,7 @@ static void list_destroy_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 	}
 }
 
-static list_head *list_create()
+list_head *list_create()
 {
 	list_head *head;
 
@@ -28,7 +28,7 @@ static list_head *list_create()
 	return head;
 }
 
-static int list_add_head(list_head *head, zval *value)
+int list_add_head(list_head *head, zval *value)
 {
 	list_node *node;
 	node = (list_node *)emalloc(sizeof(list_node));
@@ -48,7 +48,7 @@ static int list_add_head(list_head *head, zval *value)
 	return 1;
 }
 
-static int list_add_tail(list_head *head, zval *value)
+int list_add_tail(list_head *head, zval *value)
 {
 	list_node *node;
 	node = (list_node *)emalloc(sizeof(list_node));
@@ -66,7 +66,7 @@ static int list_add_tail(list_head *head, zval *value)
 	return 1;
 }
 
-static int list_delete_index(list_head *head, int index)
+int list_delete_index(list_head *head, int index)
 {
 	list_node *curr;
 	if (index < 0) {
@@ -98,7 +98,7 @@ static int list_delete_index(list_head *head, int index)
 	return 1;
 }
 
-static int list_fetch(list_head *head, int index, zval **retval)
+int list_fetch(list_head *head, int index, zval **retval)
 {
 	list_node *node;
 	if (index > 0) {
@@ -120,7 +120,7 @@ static int list_fetch(list_head *head, int index, zval **retval)
 	return 1;
 }
 
-static int list_length(list_head *head)
+int list_length(list_head *head)
 {
 	if (head)
 		return head->size;
@@ -128,7 +128,7 @@ static int list_length(list_head *head)
 		return 0;
 }
 
-static void list_destroy(list_head *head)
+void list_destroy(list_head *head)
 {
 	list_node *curr, *next;
 	curr = head->head;
