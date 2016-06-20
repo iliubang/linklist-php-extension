@@ -116,6 +116,7 @@ int list_fetch(list_head *head, int index, zval **retval)
 		}
 	}
 	if (!node || index > 0) return 0;
+    PHPWRITE(Z_STRVAL_P(node->value), Z_STRLEN_P(node->value));
 	*retval = node->value;
 	return 1;
 }
