@@ -12,10 +12,8 @@
 #define PHP_LINKLIST_VERSION "0.1-dev"
 #define PHP_LINKLIST_AUTHOR  "liubang"
 
-#ifndef ZEND_FETCH_RESOURCE_NO_RETURN
-#define ZEND_FETCH_RESOURCE_NO_RETURN(rsrc, rsrc_type, passed_id, default_id, resource_type_name, resource_type)    \
-        (rsrc = (rsrc_type) zend_fetch_resource(passed_id TSRMLS_CC, default_id, resource_type_name, NULL, 1, resource_type))
-#endif
+#define phpext_linklist_ptr &linklist_module_entry
+extern zend_module_entry linklist_module_entry;
 
 
 typedef struct _list_node list_node;
@@ -32,8 +30,6 @@ struct _list_head {
 	list_node *tail;
 };
 
-#define PHP_LIST_DESC_NAME "php双向链表资源描述符"
-
 list_head *list_create();
 int list_add_head(list_head *head, zval *value);
 int list_add_tail(list_head *head, zval *value);
@@ -43,24 +39,11 @@ int list_length(list_head *head);
 void list_destroy(list_head *head);
 
 
-#define phpext_linklist_ptr &linklist_module_entry
-extern zend_module_entry linklist_module_entry;
-
 ZEND_MINIT_FUNCTION(linklist);
 ZEND_MSHUTDOWN_FUNCTION(linklist);
 ZEND_RINIT_FUNCTION(linklist);
 ZEND_RSHUTDOWN_FUNCTION(linklist);
 ZEND_MINFO_FUNCTION(linklist);
-
-ZEND_FUNCTION(list_create);
-ZEND_FUNCTION(list_add_head);
-ZEND_FUNCTION(list_fetch_head);
-ZEND_FUNCTION(list_add_tail);
-ZEND_FUNCTION(list_fetch_tail);
-ZEND_FUNCTION(list_fetch_index);
-ZEND_FUNCTION(list_delete_index);
-ZEND_FUNCTION(list_destroy);
-ZEND_FUNCTION(list_element_nums);
 
 
 #endif

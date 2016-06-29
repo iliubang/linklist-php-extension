@@ -2,21 +2,6 @@
 
 zend_class_entry * linklist_ce;
 
-static int le_php_list;
-static int freed = 0;
-
-static void list_destroy_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
-{
-	if (!freed) {
-		list_head *list;
-
-		list = (list_head *)rsrc->ptr;
-		list_destroy(list);
-
-		freed = 1;
-	}
-}
-
 static list_head *list_create()
 {
 	list_head *head;
