@@ -1,9 +1,11 @@
 #include "php_linklist.h"
 
+zend_class_entry * linklist_ce;
+
 static int le_php_list;
 static int freed = 0;
 
-void list_destroy_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void list_destroy_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	if (!freed) {
 		list_head *list;
@@ -15,7 +17,7 @@ void list_destroy_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 	}
 }
 
-list_head *list_create()
+static list_head *list_create()
 {
 	list_head *head;
 
@@ -28,7 +30,7 @@ list_head *list_create()
 	return head;
 }
 
-int list_add_head(list_head *head, zval *value)
+static int list_add_head(list_head *head, zval *value)
 {
 	list_node *node;
 	node = (list_node *)emalloc(sizeof(list_node));
@@ -48,7 +50,7 @@ int list_add_head(list_head *head, zval *value)
 	return 1;
 }
 
-int list_add_tail(list_head *head, zval *value)
+static int list_add_tail(list_head *head, zval *value)
 {
 	list_node *node;
 	node = (list_node *)emalloc(sizeof(list_node));
@@ -66,7 +68,7 @@ int list_add_tail(list_head *head, zval *value)
 	return 1;
 }
 
-int list_delete_index(list_head *head, int index)
+static int list_delete_index(list_head *head, int index)
 {
 	list_node *curr;
 	if (index < 0) {
@@ -98,7 +100,7 @@ int list_delete_index(list_head *head, int index)
 	return 1;
 }
 
-int list_fetch(list_head *head, int index, zval **retval)
+static int list_fetch(list_head *head, int index, zval **retval)
 {
 	list_node *node;
 	if (index > 0) {
@@ -116,12 +118,11 @@ int list_fetch(list_head *head, int index, zval **retval)
 		}
 	}
 	if (!node || index > 0) return 0;
-    PHPWRITE(Z_STRVAL_P(node->value), Z_STRLEN_P(node->value));
 	*retval = node->value;
 	return 1;
 }
 
-int list_length(list_head *head)
+static int list_length(list_head *head)
 {
 	if (head)
 		return head->size;
@@ -129,7 +130,7 @@ int list_length(list_head *head)
 		return 0;
 }
 
-void list_destroy(list_head *head)
+static void list_destroy(list_head *head)
 {
 	list_node *curr, *next;
 	curr = head->head;
@@ -142,21 +143,12 @@ void list_destroy(list_head *head)
 	efree(head);
 }
 
-static zend_function_entry linklist_functions[] = {
-	ZEND_FE(list_create, NULL)
-	ZEND_FE(list_add_head, NULL)
-	ZEND_FE(list_add_tail, NULL)
-	ZEND_FE(list_fetch_head, NULL)
-	ZEND_FE(list_fetch_tail, NULL)
-	ZEND_FE(list_fetch_index, NULL)
-	ZEND_FE(list_delete_index, NULL)
-	ZEND_FE(list_destroy, NULL)
-	ZEND_FE(list_element_nums, NULL)
-	ZEND_FE_END
+static zend_function_entry linklist_methods[] = {
+	{NULL, NULL, NULL}
 };
 
 
-ZEND_FUNCTION(list_create)
+PHP_METHOD(linklist, __construct)
 {
 	list_head *list;
 	list = list_create();
@@ -164,11 +156,11 @@ ZEND_FUNCTION(list_create)
         php_printf("list_create error!\n");
 		RETURN_NULL();
     } else {
-		ZEND_REGISTER_RESOURCE(return_value, list, le_php_list);
+		zend_update_property(linklist_ce, getThis(), "_linklist", sizeof("_linklist") - 1, list TSRMLS_CC);
     }
 }
 
-ZEND_FUNCTION(list_add_head)
+PHP_METHOD(linklist, list_add_head)
 {
 	zval *value;
 	zval *lrc;
@@ -189,7 +181,7 @@ ZEND_FUNCTION(list_add_head)
     RETURN_FALSE;
 }
 
-ZEND_FUNCTION(list_fetch_head)
+PHP_METHOD(linklist, list_fetch_head)
 {
     zval *retval, *lrc;
     list_head *list;
@@ -213,7 +205,7 @@ ZEND_FUNCTION(list_fetch_head)
     }
 }
 
-ZEND_FUNCTION(list_add_tail)
+PHP_METHOD(linklist, list_add_tail)
 {
     zval *value;
     zval *lrc;
@@ -230,7 +222,7 @@ ZEND_FUNCTION(list_add_tail)
     RETURN_TRUE;
 }
 
-ZEND_FUNCTION(list_fetch_tail)
+PHP_METHOD(linklist, list_fetch_tail)
 {
     zval *lrc, *retval;
     list_head *list;
@@ -249,7 +241,7 @@ ZEND_FUNCTION(list_fetch_tail)
     RETURN_ZVAL(retval, 1, 0);
 }
 
-ZEND_FUNCTION(list_fetch_index)
+PHP_METHOD(linklist, list_fetch_index)
 {
     zval *lrc, *retval;
     list_head *list;
@@ -269,7 +261,7 @@ ZEND_FUNCTION(list_fetch_index)
     RETURN_ZVAL(retval, 1, 0);
 }
 
-ZEND_FUNCTION(list_delete_index)
+PHP_METHOD(linklist, list_delete_index)
 {
     zval *lrc;
     list_head *list;
@@ -287,7 +279,21 @@ ZEND_FUNCTION(list_delete_index)
     RETURN_FALSE;
 }
 
-ZEND_FUNCTION(list_destroy)
+PHP_METHOD(linklist, list_element_nums)
+{
+    zval *lrc;
+    list_head *list;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
+        RETURN_FALSE;
+    }
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    if (!list) {
+        RETURN_FALSE;
+    }
+    RETURN_LONG(list_length(list));
+}
+
+PHP_METHOD(linklist, __destruct)
 {
     zval *lrc;
     list_head *list;
@@ -305,25 +311,12 @@ ZEND_FUNCTION(list_destroy)
     RETURN_TRUE;
 }
 
-ZEND_FUNCTION(list_element_nums)
-{
-    zval *lrc;
-    list_head *list;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
-        RETURN_FALSE;
-    }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
-    if (!list) {
-        RETURN_FALSE;
-    }
-    RETURN_LONG(list_length(list));
-}
-
 
 ZEND_MINIT_FUNCTION(linklist)
 {
-    le_php_list = zend_register_list_destructors_ex(
-        list_destroy_handler, NULL, "List Resource", module_number);
+    zend_class_entry ce;
+    INIT_CLASS_ENTRY(ce, "linklist", linklist_methods);
+    zend_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
 	return SUCCESS;
 }
 
@@ -356,7 +349,7 @@ zend_module_entry linklist_module_entry = {
 	STANDARD_MODULE_HEADER,
 #endif
 	"linklist",
-	linklist_functions,
+	NULL,
 	ZEND_MINIT(linklist),
 	ZEND_MSHUTDOWN(linklist),
 	ZEND_RINIT(linklist),
