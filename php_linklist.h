@@ -16,6 +16,14 @@
 extern zend_module_entry linklist_module_entry;
 
 #define PHP_LINKLIST_DESCRIPTOR_NAME "List Resource"
+#define LIUBANG_LINKLIST_PROPERTY_NAME "_linklist"
+
+#define LIUBANG_UNINITIALIZED_ZVAL(zval)  \
+    do { \
+        zval_dtor(zval); \
+        ZVAL_FALSE(zval); \
+    } while(0)
+
 
 typedef struct _list_node list_node;
 struct _list_node {
@@ -30,6 +38,8 @@ struct _list_head {
 	list_node *head;
 	list_node *tail;
 };
+
+static void php_linklist_descriptor_dotr(zend_rsrc_list_entry *rsrc TSRMLS_DC);
 
 static list_head *list_create();
 static int list_add_head(list_head *head, zval *value);
