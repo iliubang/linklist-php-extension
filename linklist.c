@@ -96,13 +96,14 @@ static int list_delete_index(list_head *head, int index)
 	}
     efree(curr->value);
 	efree(curr);
+    head->size--;
 	return 1;
 }
 
 static int list_fetch(list_head *head, int index, zval **retval)
 {
 	list_node *node;
-	if (index > 0) {
+	if (index >= 0) {
 		node = head->head;
 		while(node && index > 0) {
 			node = node->next;
@@ -208,7 +209,6 @@ PHP_METHOD(lb_linklist, list_fetch_head)
     }
     res = list_fetch(list, 0, &retval);
     if (!res) {
-        php_printf("null");
         RETURN_NULL();
     } else {
         RETURN_ZVAL(retval, 1, 0);
