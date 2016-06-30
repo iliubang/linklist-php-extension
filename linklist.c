@@ -32,7 +32,8 @@ static int list_add_head(list_head *head, zval *value)
 	node = (list_node *)emalloc(sizeof(list_node));
 	if (!node)
 		return 0;
-	node->value = value;
+	node->value = (zval *)emalloc(sizeof(zval));
+    ZVAL_ZVAL(node->value, value, 1, 1);
 	node->prev = NULL;
 	node->next = head->head;
 	if (head->head)
@@ -52,7 +53,8 @@ static int list_add_tail(list_head *head, zval *value)
 	node = (list_node *)emalloc(sizeof(list_node));
 	if (!node)
 		return 0;
-	node->value = value;
+    node->value = (zval *)emalloc(sizeof(zval));
+    ZVAL_ZVAL(node->value, value, 1, 1);
 	node->prev = head->tail;
 	node->next = NULL;
 	if (head->tail)
@@ -92,6 +94,7 @@ static int list_delete_index(list_head *head, int index)
 	} else {
 		head->tail = curr->prev;
 	}
+    efree(curr->value);
 	efree(curr);
 	return 1;
 }
@@ -133,6 +136,7 @@ static void list_destroy(list_head *head)
 	while(curr)
 	{
 		next = curr->next;
+        efree(curr->value);
 		efree(curr);
 		curr = next;
 	}
@@ -204,6 +208,7 @@ PHP_METHOD(lb_linklist, list_fetch_head)
     }
     res = list_fetch(list, 0, &retval);
     if (!res) {
+        php_printf("null");
         RETURN_NULL();
     } else {
         RETURN_ZVAL(retval, 1, 0);
