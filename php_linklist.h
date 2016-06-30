@@ -56,5 +56,4 @@ PHP_RINIT_FUNCTION(linklist);
 PHP_RSHUTDOWN_FUNCTION(linklist);
 PHP_MINFO_FUNCTION(linklist);
 
-
 #endif

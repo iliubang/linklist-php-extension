@@ -185,8 +185,6 @@ PHP_METHOD(lb_linklist, list_add_head)
         RETURN_FALSE;
     }
 	if(list_add_head(list, value)) {
-        PHPWRITE(Z_STRVAL_P(value), Z_STRLEN_P(value));
-        php_printf("\n");
         RETURN_TRUE;
     }
     RETURN_FALSE;
