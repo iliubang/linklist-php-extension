@@ -61,4 +61,4 @@ var_dump($list->list_fetch_head());
 ```
 
 ### TODO
-[ ] 已知bug: 往链表中存储object类型的数据,读取数据的时候会引起段错误.
+- 已知bug: 往链表中存储object类型的数据,读取数据的时候会引起段错误.
