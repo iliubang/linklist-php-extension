@@ -1,6 +1,17 @@
 #include "php_linklist.h"
 
 zend_class_entry * linklist_ce;
+static int le_linklist_descriptor;
+static int freed = 0;
+
+
+static void php_linklist_descriptor_dotr(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+{
+    if (!freed) {
+        list_head *head = (list_head *)rsrc->ptr;
+        list_destroy(head);
+    }
+}
 
 static list_head *list_create()
 {
@@ -129,33 +140,48 @@ static void list_destroy(list_head *head)
 }
 
 static zend_function_entry linklist_methods[] = {
+    PHP_ME(lb_linklist, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+    PHP_ME(lb_linklist, __destruct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_DTOR)
+    PHP_ME(lb_linklist, list_add_head, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_fetch_head, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_add_tail, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_fetch_tail, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_fetch_index, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_delete_index, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_element_nums, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
 
-PHP_METHOD(linklist, __construct)
+PHP_METHOD(lb_linklist, __construct)
 {
 	list_head *list;
 	list = list_create();
+    zval *list_res;
+    MAKE_STD_ZVAL(list_res);
 	if (!list) {
-        php_printf("list_create error!\n");
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to create a linklist");
 		RETURN_NULL();
     } else {
-		zend_update_property(linklist_ce, getThis(), "_linklist", sizeof("_linklist") - 1, list TSRMLS_CC);
+        ZEND_REGISTER_RESOURCE(list_res, list, le_linklist_descriptor);
+		zend_update_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), list_res TSRMLS_CC);
     }
 }
 
-PHP_METHOD(linklist, list_add_head)
+PHP_METHOD(lb_linklist, list_add_head)
 {
 	zval *value;
 	zval *lrc;
 	list_head *list;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rz", &lrc, &value) == FAILURE) {
+    //解析用户传来的参数
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &value) == FAILURE) {
 		RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    //读取对象属性,为一个资源类型
+    lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), 0 TSRMLS_CC);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
     if (!list) {
-        php_printf("list_add_head fetch resource error!\n");
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to add an element to linklist");
         RETURN_FALSE;
     }
 	if(list_add_head(list, value)) {
@@ -166,57 +192,55 @@ PHP_METHOD(linklist, list_add_head)
     RETURN_FALSE;
 }
 
-PHP_METHOD(linklist, list_fetch_head)
+PHP_METHOD(lb_linklist, list_fetch_head)
 {
     zval *retval, *lrc;
     list_head *list;
     int res;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
-        RETURN_FALSE;
-    }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    //读取对象属性,为一个资源类型
+    lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), 0 TSRMLS_CC);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
     if (!list) {
-        php_printf("list_fetch_head fetch resource error!\n");
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to fetch head element");
         RETURN_FALSE;
     }
-
     res = list_fetch(list, 0, &retval);
-
     if (!res) {
-        php_printf("list_fetch_head fetch resource error\n");
         RETURN_NULL();
     } else {
         RETURN_ZVAL(retval, 1, 0);
     }
 }
 
-PHP_METHOD(linklist, list_add_tail)
+PHP_METHOD(lb_linklist, list_add_tail)
 {
     zval *value;
     zval *lrc;
     list_head *list;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rz", &lrc, &value) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",&value) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    //读取对象属性,为一个资源类型
+    lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), 0 TSRMLS_CC);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
     if (!list) {
-        php_printf("list_add_tail fetch resource error!\n");
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to add an element to linklist");
         RETURN_FALSE;
     }
     list_add_tail(list, value);
     RETURN_TRUE;
 }
 
-PHP_METHOD(linklist, list_fetch_tail)
+PHP_METHOD(lb_linklist, list_fetch_tail)
 {
     zval *lrc, *retval;
     list_head *list;
     int res;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
-        RETURN_FALSE;
-    }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    //读取对象属性,为一个资源类型
+    lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), 0 TSRMLS_CC);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
     if (!list) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to fetch tail element");
         RETURN_FALSE;
     }
     res = list_fetch(list, list_length(list) - 1, &retval);
@@ -226,17 +250,20 @@ PHP_METHOD(linklist, list_fetch_tail)
     RETURN_ZVAL(retval, 1, 0);
 }
 
-PHP_METHOD(linklist, list_fetch_index)
+PHP_METHOD(lb_linklist, list_fetch_index)
 {
     zval *lrc, *retval;
     list_head *list;
     long index;
     int res;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &lrc, &index) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &index) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    //读取对象属性,为一个资源类型
+    lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), 0 TSRMLS_CC);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
     if (!list) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to fetch an element");
         RETURN_FALSE;
     }
     res = list_fetch(list, index, &retval);
@@ -246,15 +273,17 @@ PHP_METHOD(linklist, list_fetch_index)
     RETURN_ZVAL(retval, 1, 0);
 }
 
-PHP_METHOD(linklist, list_delete_index)
+PHP_METHOD(lb_linklist, list_delete_index)
 {
     zval *lrc;
     list_head *list;
     long index;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &lrc, &index) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &index) == FAILURE) {
         RETURN_FALSE;
     }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    //读取对象属性,为一个资源类型
+    lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), 0 TSRMLS_CC);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
     if (!list) {
         RETURN_FALSE;
     }
@@ -264,28 +293,26 @@ PHP_METHOD(linklist, list_delete_index)
     RETURN_FALSE;
 }
 
-PHP_METHOD(linklist, list_element_nums)
+PHP_METHOD(lb_linklist, list_element_nums)
 {
     zval *lrc;
     list_head *list;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
-        RETURN_FALSE;
-    }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    //读取对象属性,为一个资源类型
+    lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), 0 TSRMLS_CC);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
     if (!list) {
         RETURN_FALSE;
     }
     RETURN_LONG(list_length(list));
 }
 
-PHP_METHOD(linklist, __destruct)
+PHP_METHOD(lb_linklist, __destruct)
 {
     zval *lrc;
     list_head *list;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &lrc) == FAILURE) {
-        RETURN_FALSE;
-    }
-    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, "List Resource", le_php_list);
+    //读取对象属性,为一个资源类型
+    lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_linklist"), 0 TSRMLS_CC);
+    ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
     if (!list) {
         RETURN_FALSE;
     }
@@ -297,30 +324,36 @@ PHP_METHOD(linklist, __destruct)
 }
 
 
-ZEND_MINIT_FUNCTION(linklist)
+PHP_MINIT_FUNCTION(linklist)
 {
     zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, "linklist", linklist_methods);
-    zend_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
+    INIT_CLASS_ENTRY(ce, "Lb\\Linklist", linklist_methods);
+    linklist_ce = zend_register_internal_class(&ce TSRMLS_CC);
+    le_linklist_descriptor = zend_register_list_destructors_ex(
+        php_linklist_descriptor_dotr,
+        NULL,
+        PHP_LINKLIST_DESCRIPTOR_NAME,
+        module_number
+    );
 	return SUCCESS;
 }
 
-ZEND_MSHUTDOWN_FUNCTION(linklist)
+PHP_MSHUTDOWN_FUNCTION(linklist)
 {
     return SUCCESS;
 }
 
-ZEND_RINIT_FUNCTION(linklist)
+PHP_RINIT_FUNCTION(linklist)
 {
     return SUCCESS;
 }
 
-ZEND_RSHUTDOWN_FUNCTION(linklist)
+PHP_RSHUTDOWN_FUNCTION(linklist)
 {
     return SUCCESS;
 }
 
-ZEND_MINFO_FUNCTION(linklist)
+PHP_MINFO_FUNCTION(linklist)
 {
     php_info_print_table_start();
     php_info_print_table_header(2, "php link list support", "enable");
@@ -335,11 +368,11 @@ zend_module_entry linklist_module_entry = {
 #endif
 	"linklist",
 	NULL,
-	ZEND_MINIT(linklist),
-	ZEND_MSHUTDOWN(linklist),
-	ZEND_RINIT(linklist),
-	ZEND_RSHUTDOWN(linklist),
-	ZEND_MINFO(linklist),
+	PHP_MINIT(linklist),
+	PHP_MSHUTDOWN(linklist),
+	PHP_RINIT(linklist),
+	PHP_RSHUTDOWN(linklist),
+	PHP_MINFO(linklist),
 #if ZEND_MODULE_API_NO >= 20010901
 	"1.0",
 #endif

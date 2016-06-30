@@ -15,6 +15,7 @@
 #define phpext_linklist_ptr &linklist_module_entry
 extern zend_module_entry linklist_module_entry;
 
+#define PHP_LINKLIST_DESCRIPTOR_NAME "List Resource"
 
 typedef struct _list_node list_node;
 struct _list_node {
@@ -30,20 +31,30 @@ struct _list_head {
 	list_node *tail;
 };
 
-list_head *list_create();
-int list_add_head(list_head *head, zval *value);
-int list_add_tail(list_head *head, zval *value);
-int list_delete_index(list_head *head, int index);
-int list_fetch(list_head *head, int index, zval **retval); 
-int list_length(list_head *head);
-void list_destroy(list_head *head);
+static list_head *list_create();
+static int list_add_head(list_head *head, zval *value);
+static int list_add_tail(list_head *head, zval *value);
+static int list_delete_index(list_head *head, int index);
+static int list_fetch(list_head *head, int index, zval **retval);
+static int list_length(list_head *head);
+static void list_destroy(list_head *head);
+
+PHP_METHOD(lb_linklist, __construct);
+PHP_METHOD(lb_linklist, list_add_head);
+PHP_METHOD(lb_linklist, list_fetch_head);
+PHP_METHOD(lb_linklist, list_add_tail);
+PHP_METHOD(lb_linklist, list_fetch_tail);
+PHP_METHOD(lb_linklist, list_fetch_index);
+PHP_METHOD(lb_linklist, list_delete_index);
+PHP_METHOD(lb_linklist, list_element_nums);
+PHP_METHOD(lb_linklist, __destruct);
 
 
-ZEND_MINIT_FUNCTION(linklist);
-ZEND_MSHUTDOWN_FUNCTION(linklist);
-ZEND_RINIT_FUNCTION(linklist);
-ZEND_RSHUTDOWN_FUNCTION(linklist);
-ZEND_MINFO_FUNCTION(linklist);
+PHP_MINIT_FUNCTION(linklist);
+PHP_MSHUTDOWN_FUNCTION(linklist);
+PHP_RINIT_FUNCTION(linklist);
+PHP_RSHUTDOWN_FUNCTION(linklist);
+PHP_MINFO_FUNCTION(linklist);
 
 
 #endif

@@ -1,13 +1,9 @@
 <?php
 
 
-$list = list_create();
+$list = new Lb\Linklist();
 
-for ($i = 0; $i < 10; $i++) {
-    list_add_head($list, "test_" . $i);
-}
-
-var_dump(list_fetch_head($list));
-
-//echo PHP_EOL . list_element_nums($list) . PHP_EOL;
-
+$list->list_add_head("hello liubang");
+$list->list_add_head("hello linger");
+echo $list->list_fetch_head();
+echo $list->list_fetch_tail();
