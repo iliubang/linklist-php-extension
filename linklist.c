@@ -132,7 +132,6 @@ static int list_length(list_head *head)
 
 static void list_destroy(list_head *head)
 {
-    php_printf("%d\n", freed);
 	list_node *curr, *next;
 	curr = head->head;
 	while(curr)
@@ -313,7 +312,6 @@ PHP_METHOD(lb_linklist, list_element_nums)
 
 PHP_METHOD(lb_linklist, __destruct)
 {
-    php_printf("__destruct\n");
     zval *lrc;
     list_head *list;
     //读取对象属性,为一个资源类型
