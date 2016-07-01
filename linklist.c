@@ -4,6 +4,37 @@ zend_class_entry * linklist_ce;
 static int le_linklist_descriptor;
 static int freed = 0;
 
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_construct_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_list_add_head_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_list_add_tail_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_list_fetch_head_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_list_fetch_tail_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_list_fetch_index_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, index)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_list_delete_index_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, index)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_list_element_nums_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(lb_linklist_destruct_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 static void php_linklist_descriptor_dotr(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
     if (!freed) {
@@ -33,9 +64,9 @@ static int list_add_head(list_head *head, zval *value)
 	if (!node)
 		return 0;
 	node->value = (zval *)emalloc(sizeof(zval));
-    ZVAL_ZVAL(node->value, value, 1, 1);
-	node->prev = NULL;
-	node->next = head->head;
+    ZVAL_ZVAL(node->value, value, 0, 0);
+    node->prev = NULL;
+    node->next = head->head;
 	if (head->head)
 		head->head->prev = node;
 	head->head = node;
@@ -54,7 +85,7 @@ static int list_add_tail(list_head *head, zval *value)
 	if (!node)
 		return 0;
     node->value = (zval *)emalloc(sizeof(zval));
-    ZVAL_ZVAL(node->value, value, 1, 1);
+    ZVAL_ZVAL(node->value, value, 0, 0);
 	node->prev = head->tail;
 	node->next = NULL;
 	if (head->tail)
@@ -138,7 +169,6 @@ static void list_destroy(list_head *head)
 	{
 		next = curr->next;
         LIUBANG_UNINITIALIZED_ZVAL(curr->value);
-		//efree(curr);
 		curr = next;
 	}
 	efree(head);
@@ -146,15 +176,15 @@ static void list_destroy(list_head *head)
 }
 
 static zend_function_entry linklist_methods[] = {
-    LIUBANG_ME(lb_linklist, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-    LIUBANG_ME(lb_linklist, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
-    LIUBANG_ME(lb_linklist, list_add_head, NULL, ZEND_ACC_PUBLIC)
-    LIUBANG_ME(lb_linklist, list_fetch_head, NULL, ZEND_ACC_PUBLIC)
-    LIUBANG_ME(lb_linklist, list_add_tail, NULL, ZEND_ACC_PUBLIC)
-    LIUBANG_ME(lb_linklist, list_fetch_tail, NULL, ZEND_ACC_PUBLIC)
-    LIUBANG_ME(lb_linklist, list_fetch_index, NULL, ZEND_ACC_PUBLIC)
-    LIUBANG_ME(lb_linklist, list_delete_index, NULL, ZEND_ACC_PUBLIC)
-    LIUBANG_ME(lb_linklist, list_element_nums, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, __construct, lb_linklist_construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+    PHP_ME(lb_linklist, __destruct, lb_linklist_destruct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
+    PHP_ME(lb_linklist, list_add_head, lb_linklist_list_add_head_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_fetch_head, lb_linklist_list_fetch_head_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_add_tail, lb_linklist_list_add_tail_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_fetch_tail, lb_linklist_list_fetch_tail_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_fetch_index, lb_linklist_list_fetch_index_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_delete_index, lb_linklist_list_delete_index_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(lb_linklist, list_element_nums, lb_linklist_list_element_nums_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
@@ -333,6 +363,7 @@ PHP_MINIT_FUNCTION(linklist)
     zend_class_entry ce;
     INIT_CLASS_ENTRY(ce, "Lb\\Linklist", linklist_methods);
     linklist_ce = zend_register_internal_class(&ce TSRMLS_CC);
+    zend_declare_property_null(linklist_ce, ZEND_STRL(LIUBANG_LINKLIST_PROPERTY_NAME),     ZEND_ACC_PROTECTED TSRMLS_CC);
     le_linklist_descriptor = zend_register_list_destructors_ex(
         php_linklist_descriptor_dotr,
         NULL,

@@ -1,6 +1,7 @@
 <?php
 $list = new Lb\Linklist();
 
+
 // for ($i = 0; $i < 10; $i++) {
 //     $list->list_add_head("hello liubang" . $i);
 // }
