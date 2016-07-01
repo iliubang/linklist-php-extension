@@ -49,7 +49,7 @@ static int list_add_tail(list_head *head, zval *value);
 static int list_delete_index(list_head *head, int index);
 static int list_fetch(list_head *head, int index, zval **retval);
 static int list_length(list_head *head);
-static void list_destroy(list_head *head);
+static void list_destroy(list_head **head);
 
 PHP_METHOD(lb_linklist, __construct);
 PHP_METHOD(lb_linklist, list_add_head);

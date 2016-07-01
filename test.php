@@ -1,13 +1,13 @@
 <?php
 $list = new Lb\Linklist();
 
-// for ($i = 0; $i < 100; $i++) {
-// 	$list->list_add_head("hello liubang" . $i);
-// }
+for ($i = 0; $i < 100; $i++) {
+	$list->list_add_head("hello liubang" . $i);
+}
 
-// for ($i = 0; $i < $list->list_element_nums(); $i++) {
-// 	$list->list_fetch_index($i);
-// }
+for ($i = 0; $i < $list->list_element_nums(); $i++) {
+	echo $list->list_fetch_index($i);
+}
 
 
 class Demo
