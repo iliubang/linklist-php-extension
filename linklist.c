@@ -4,7 +4,6 @@ zend_class_entry * linklist_ce;
 static int le_linklist_descriptor;
 static int freed = 0;
 
-
 static void php_linklist_descriptor_dotr(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
     if (!freed) {
@@ -148,15 +147,15 @@ static void list_destroy(list_head *head)
 }
 
 static zend_function_entry linklist_methods[] = {
-    PHP_ME(lb_linklist, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-    PHP_ME(lb_linklist, __destruct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_DTOR)
-    PHP_ME(lb_linklist, list_add_head, NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(lb_linklist, list_fetch_head, NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(lb_linklist, list_add_tail, NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(lb_linklist, list_fetch_tail, NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(lb_linklist, list_fetch_index, NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(lb_linklist, list_delete_index, NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(lb_linklist, list_element_nums, NULL, ZEND_ACC_PUBLIC)
+    LIUBANG_ME(lb_linklist, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+    LIUBANG_ME(lb_linklist, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
+    LIUBANG_ME(lb_linklist, list_add_head, NULL, ZEND_ACC_PUBLIC)
+    LIUBANG_ME(lb_linklist, list_fetch_head, NULL, ZEND_ACC_PUBLIC)
+    LIUBANG_ME(lb_linklist, list_add_tail, NULL, ZEND_ACC_PUBLIC)
+    LIUBANG_ME(lb_linklist, list_fetch_tail, NULL, ZEND_ACC_PUBLIC)
+    LIUBANG_ME(lb_linklist, list_fetch_index, NULL, ZEND_ACC_PUBLIC)
+    LIUBANG_ME(lb_linklist, list_delete_index, NULL, ZEND_ACC_PUBLIC)
+    LIUBANG_ME(lb_linklist, list_element_nums, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 

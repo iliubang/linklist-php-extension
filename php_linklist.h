@@ -18,6 +18,8 @@ extern zend_module_entry linklist_module_entry;
 #define PHP_LINKLIST_DESCRIPTOR_NAME "List Resource"
 #define LIUBANG_LINKLIST_PROPERTY_NAME "_linklist"
 
+#define LIUBANG_ME(c, m, a, f) {m, PHP_MN(c), a, (zend_uint) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
+
 #define LIUBANG_UNINITIALIZED_ZVAL(zval)  \
     do { \
         zval_dtor(zval); \

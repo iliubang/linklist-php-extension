@@ -36,6 +36,7 @@ class Demo {
     }
 }
 $d = new Demo("刘邦", "男");
+
 $list->list_add_head($d);
 
 var_dump($list->list_fetch_head());
