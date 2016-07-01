@@ -68,7 +68,12 @@ static int list_add_head( list_head *head, zval *value )
     if ( !node )
         return(0);
     node->value = (zval *) emalloc( sizeof(zval) );
-    ZVAL_ZVAL( node->value, value, 0, 0 );
+    if (Z_TYPE_P(value) == IS_OBJECT) {
+        ZVAL_ZVAL( node->value, value, 0, 0 );
+    } else {
+        ZVAL_ZVAL( node->value, value, 1, 1 );
+    }
+
     node->prev  = NULL;
     node->next  = head->head;
     if ( head->head )
@@ -90,7 +95,11 @@ static int list_add_tail( list_head *head, zval *value )
     if ( !node )
         return(0);
     node->value = (zval *) emalloc( sizeof(zval) );
-    ZVAL_ZVAL( node->value, value, 0, 0 );
+    if (Z_TYPE_P(value) == IS_OBJECT) {
+        ZVAL_ZVAL( node->value, value, 0, 0 );
+    } else {
+        ZVAL_ZVAL( node->value, value, 1, 1 );
+    }
     node->prev  = head->tail;
     node->next  = NULL;
     if ( head->tail )
