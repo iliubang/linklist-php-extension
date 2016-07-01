@@ -46,9 +46,9 @@ static void php_linklist_descriptor_dotr(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 
 static list_head *list_create()
 {
-	list_head *head;
+    list_head *head;
 
-	head = (list_head *)emalloc(sizeof(list_head));
+    head = (list_head *)emalloc(sizeof(list_head));
 	if (head) {
 		head->size = 0;
 		head->head = NULL;
