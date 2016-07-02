@@ -2,15 +2,15 @@
 $list = new Lb\Linklist();
 
 for ($i = 0; $i < 10; $i++) { 
-	$list->list_add_head("hello liubang" . $i);
+	$list->add_head("hello liubang" . $i);
 }
 
-$list->list_delete_index(0);
-echo $list->list_element_nums();
+$list->delete_index(0);
+echo $list->element_nums();
 echo PHP_EOL;
 
-for ($i = 0; $i < $list->list_element_nums(); $i++) {
-	echo $list->list_fetch_index($i), PHP_EOL;
+for ($i = 0; $i < $list->element_nums(); $i++) {
+	echo $list->fetch_index($i), PHP_EOL;
 }
 
 
@@ -32,6 +32,6 @@ $d = new Demo('liubang', '男');
 
 //var_dump($d);
 
-$list->list_add_head($d);
+$list->add_head($d);
 
-var_dump($list->list_fetch_head());
+var_dump($list->fetch_head());
