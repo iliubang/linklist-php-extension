@@ -20,12 +20,6 @@ extern zend_module_entry linklist_module_entry;
 
 #define LIUBANG_ME(c, m, a, f) {m, PHP_MN(c), a, (zend_uint) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
 
-#define LIUBANG_UNINITIALIZED_ZVAL(zval)  \
-    do { \
-        zval_dtor(zval); \
-        ZVAL_FALSE(zval); \
-    } while(0)
-
 
 typedef struct _list_node list_node;
 struct _list_node {
@@ -49,16 +43,16 @@ static int list_add_tail(list_head *head, zval *value);
 static int list_delete_index(list_head *head, int index);
 static int list_fetch(list_head *head, int index, zval **retval);
 static int list_length(list_head *head);
-static void list_destroy(list_head *head);
+static void list_destroy(list_head **head);
 
 PHP_METHOD(lb_linklist, __construct);
-PHP_METHOD(lb_linklist, list_add_head);
-PHP_METHOD(lb_linklist, list_fetch_head);
-PHP_METHOD(lb_linklist, list_add_tail);
-PHP_METHOD(lb_linklist, list_fetch_tail);
-PHP_METHOD(lb_linklist, list_fetch_index);
-PHP_METHOD(lb_linklist, list_delete_index);
-PHP_METHOD(lb_linklist, list_element_nums);
+PHP_METHOD(lb_linklist, add_head);
+PHP_METHOD(lb_linklist, fetch_head);
+PHP_METHOD(lb_linklist, add_tail);
+PHP_METHOD(lb_linklist, fetch_tail);
+PHP_METHOD(lb_linklist, fetch_index);
+PHP_METHOD(lb_linklist, delete_index);
+PHP_METHOD(lb_linklist, element_nums);
 PHP_METHOD(lb_linklist, __destruct);
 
 

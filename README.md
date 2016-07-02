@@ -5,13 +5,13 @@ link list datastruct for php
 
 ### methods
 ```php
-list_add_head();
-list_fetch_head();
-list_add_tail();
-list_fetch_tail();
-list_fetch_index();
-list_delete_index();
-list_element_nums();
+add_head();
+fetch_head();
+add_tail();
+fetch_tail();
+fetch_index();
+delete_index();
+element_nums();
 ```
 
 ### Demo
@@ -21,29 +21,29 @@ list_element_nums();
 $list = new Lb\Linklist();
 
 for ($i = 0; $i < 10; $i++) {
-    $list->list_add_head("hello liubang" . $i);
+    $list->add_head("hello liubang" . $i);
 }
 
-for ($i = 0; $i < $list->list_element_nums(); $i++) {
-    echo $list->list_fetch_index($i) , PHP_EOL;
+for ($i = 0; $i < $list->element_nums(); $i++) {
+    echo $list->fetch_index($i) , PHP_EOL;
 }
 
-$list->list_delete_index(3);
-echo $list->list_element_nums();
+$list->delete_index(3);
+echo $list->element_nums();
 echo PHP_EOL;
 
 
-for ($i = 0; $i < $list->list_element_nums(); $i++) {
-    echo $list->list_fetch_index($i) , PHP_EOL;
+for ($i = 0; $i < $list->element_nums(); $i++) {
+    echo $list->fetch_index($i) , PHP_EOL;
 }
 
-$list->list_add_tail(array(
+$list->add_tail(array(
     'userId' => 1034285,
     'userName' => '东北狠人'
 ));
 
 
-var_dump($list->list_fetch_tail());
+var_dump($list->fetch_tail());
 
 
 class Demo {
@@ -55,7 +55,7 @@ class Demo {
     }
 }
 $d = new Demo("刘邦", "男");
-$list->list_add_head($d);
+$list->add_head($d);
 
-var_dump($list->list_fetch_head());
+var_dump($list->fetch_head());
 ```
