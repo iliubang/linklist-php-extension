@@ -1,13 +1,15 @@
 <?php
 $list = new Lb\Linklist();
 
+var_dump($list);
+
 for ($i = 0; $i < 10; $i++) { 
 	$list->add_head("hello liubang" . $i);
 }
 
-$list->delete_index(0);
-echo $list->element_nums();
-echo PHP_EOL;
+$list->delete_index(3);
+//echo $list->element_nums();
+//echo PHP_EOL;
 
 for ($i = 0; $i < $list->element_nums(); $i++) {
 	echo $list->fetch_index($i), PHP_EOL;
