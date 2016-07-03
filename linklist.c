@@ -280,7 +280,7 @@ PHP_METHOD( lb_linklist, fetch_head )
 	{
 		RETURN_NULL();
 	} else {
-		RETURN_ZVAL( retval, 1, 1 );
+		RETURN_ZVAL( retval, 1, 0 );
 	}
 }
 /* }}} */
@@ -329,7 +329,7 @@ PHP_METHOD( lb_linklist, fetch_tail )
 	{
 		RETURN_NULL();
 	}
-	RETURN_ZVAL( retval, 1, 1 );
+	RETURN_ZVAL( retval, 1, 0 );
 }
 /* }}} */
 
@@ -358,7 +358,7 @@ PHP_METHOD( lb_linklist, fetch_index )
 	{
 		RETURN_NULL();
 	}
-	RETURN_ZVAL( retval, 1, 1 );
+	RETURN_ZVAL( retval, 1, 0 );
 }
 /* }}} */
 
