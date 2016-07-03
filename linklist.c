@@ -299,9 +299,9 @@ PHP_METHOD(lb_linklist, add_tail)
  */
 PHP_METHOD(lb_linklist, fetch_tail)
 {
-    zval        *lrc, *retval;
-    list_head   *list;
-    int     res;
+    zval *lrc, *retval;
+    list_head *list;
+    int res;
     /* 读取对象属性,为一个资源类型 */
     lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL(LIUBANG_LINKLIST_PROPERTY_NAME), 0 TSRMLS_CC);
     ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
@@ -321,22 +321,19 @@ PHP_METHOD(lb_linklist, fetch_tail)
 
 /** {{{ proto Lb\Linklist::fetch_index(int)
  */
-PHP_METHOD( lb_linklist, fetch_index )
+PHP_METHOD(lb_linklist, fetch_index)
 {
-    zval        *lrc, *retval;
-    list_head   *list;
-    long        index;
-    int     res;
-    if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "l", &index ) ==
-         FAILURE )
-    {
+    zval *lrc, *retval;
+    list_head *list;
+    long index;
+    int res;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &index) == FAILURE) {
         RETURN_FALSE;
     }
     /* 读取对象属性,为一个资源类型 */
     lrc = zend_read_property(linklist_ce, getThis(), ZEND_STRL(LIUBANG_LINKLIST_PROPERTY_NAME), 0 TSRMLS_CC);
     ZEND_FETCH_RESOURCE_NO_RETURN(list, list_head *, &lrc, -1, PHP_LINKLIST_DESCRIPTOR_NAME, le_linklist_descriptor);
-    if (!list)
-    {
+    if (!list) {
         php_error_docref( NULL TSRMLS_CC, E_WARNING,
                   "Unable to fetch an element" );
         RETURN_FALSE;
