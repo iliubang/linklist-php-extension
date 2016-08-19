@@ -22,14 +22,16 @@ extern zend_module_entry linklist_module_entry;
 
 
 typedef struct _list_node list_node;
-struct _list_node {
+struct _list_node
+{
 	zval *value;
 	list_node *prev;
 	list_node *next;
 };
 
 typedef struct _list_head list_head;
-struct _list_head {
+struct _list_head
+{
 	int size;
 	list_node *head;
 	list_node *tail;
