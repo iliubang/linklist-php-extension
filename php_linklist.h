@@ -15,12 +15,6 @@
 #define phpext_linklist_ptr &linklist_module_entry
 extern zend_module_entry linklist_module_entry;
 
-#define PHP_LINKLIST_DESCRIPTOR_NAME "List Resource"
-#define LIUBANG_LINKLIST_PROPERTY_NAME "_linklist"
-
-#define LIUBANG_ME(c, m, a, f) {m, PHP_MN(c), a, (zend_uint) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
-
-
 typedef struct _list_node list_node;
 struct _list_node
 {
@@ -32,20 +26,11 @@ struct _list_node
 typedef struct _list_head list_head;
 struct _list_head
 {
+    zend_refcounted_h gc;
 	int size;
 	list_node *head;
 	list_node *tail;
 };
-
-static void php_linklist_descriptor_dotr(zend_rsrc_list_entry *rsrc TSRMLS_DC);
-
-static list_head *list_create();
-static int list_add_head(list_head *head, zval *value);
-static int list_add_tail(list_head *head, zval *value);
-static int list_delete_index(list_head *head, int index);
-static int list_fetch(list_head *head, int index, zval **retval);
-static int list_length(list_head *head);
-static void list_destroy(list_head **head);
 
 PHP_METHOD(lb_linklist, __construct);
 PHP_METHOD(lb_linklist, add_head);
