@@ -56,3 +56,7 @@
 /missing
 /mkinstalldirs
 /run-tests.php
+build/
+.libs/
+autom4te.cache/
+configure.ac
