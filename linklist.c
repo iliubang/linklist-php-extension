@@ -1,7 +1,6 @@
 #include "php_linklist.h"
 
 zend_class_entry *linklist_ce;
-zval *zv_linklist;
 
 ZEND_BEGIN_ARG_INFO_EX(lb_linklist_construct_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
@@ -221,15 +220,28 @@ static zend_function_entry linklist_methods[] =
  */
 PHP_METHOD(lb_linklist, __construct)
 {
+    zval zv_linklist = {{0}};
+
 	list_head *list = list_create();
 	if (NULL == list) {
 		php_error_docref(NULL, E_ERROR, "create list error!");
 		return;
 	}
 
-	ZVAL_PTR(zv_linklist, (void *)list);
+	ZVAL_PTR(&zv_linklist, (void *)list);
+    zend_update_property(linklist_ce, getThis(), ZEND_STRL("_list"), &zv_linklist);
+
+    zval_ptr_dtor(&zv_linklist);
 }
 /* }}} */
+
+
+#define GET_LIST(list)                                                                         \
+    do {                                                                                       \
+        zval *__zv = zend_read_property(linklist_ce, getThis(), ZEND_STRL("_list"), 1, NULL);  \
+        list = (list_head *) Z_PTR_P(__zv);                                                    \
+    } while(0)
+
 
 /** {{{ proto Lb\Linklist::add_head(mixed)
  */
@@ -243,7 +255,7 @@ PHP_METHOD(lb_linklist, add_head)
 		RETURN_FALSE;
 	}
 
-	list = (list_head *) Z_PTR_P(zv_linklist);
+    GET_LIST(list);
 
 	if (!list)
 	{
@@ -265,10 +277,11 @@ PHP_METHOD(lb_linklist, add_head)
  */
 PHP_METHOD(lb_linklist, fetch_head)
 {
-	zval        *retval, *lrc;
+	zval        *retval;
 	list_head   *list;
+    GET_LIST(list);
+
 	int         res;
-	list = (list_head *) Z_PTR_P(zv_linklist);
 	if (!list)
 	{
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Unable to fetch head element");
@@ -298,7 +311,7 @@ PHP_METHOD(lb_linklist, add_tail)
 		RETURN_FALSE;
 	}
 
-	list = (list_head *) Z_PTR_P(zv_linklist);
+    GET_LIST(list);
 
 	if (!list)
 	{
@@ -320,7 +333,7 @@ PHP_METHOD(lb_linklist, fetch_tail)
 	list_head *list;
 	int res;
 
-	list = (list_head *) Z_PTR_P(zv_linklist);
+    GET_LIST(list);
 
 	if (!list)
 	{
@@ -343,7 +356,7 @@ PHP_METHOD(lb_linklist, fetch_tail)
  */
 PHP_METHOD(lb_linklist, fetch_index)
 {
-	zval *lrc, *retval;
+	zval *retval;
 	list_head *list;
 	long index;
 	int res;
@@ -352,7 +365,7 @@ PHP_METHOD(lb_linklist, fetch_index)
 		RETURN_FALSE;
 	}
 
-	list = (list_head *) Z_PTR_P(zv_linklist);
+    GET_LIST(list);
 
 	if (!list)
 	{
@@ -383,7 +396,7 @@ PHP_METHOD(lb_linklist, delete_index)
 		RETURN_FALSE;
 	}
 
-	list = (list_head *) Z_PTR_P(zv_linklist);
+    GET_LIST(list);
 
 	if (!list)
 	{
@@ -393,6 +406,7 @@ PHP_METHOD(lb_linklist, delete_index)
 	{
 		RETURN_TRUE;
 	}
+
 	RETURN_FALSE;
 }
 /* }}} */
@@ -402,10 +416,9 @@ PHP_METHOD(lb_linklist, delete_index)
  */
 PHP_METHOD(lb_linklist, element_nums)
 {
-	zval        *lrc;
 	list_head   *list;
 
-	list = (list_head *) Z_PTR_P(zv_linklist);
+    GET_LIST(list);
 
 	if (!list)
 	{
@@ -419,9 +432,10 @@ PHP_METHOD(lb_linklist, element_nums)
 
 /** {{{ proto Lb\Linklist::__destruct(void)
  */
-PHP_METHOD( lb_linklist, __destruct )
+PHP_METHOD(lb_linklist, __destruct)
 {
-    list_head *list = (list_head *) Z_PTR_P(zv_linklist);
+    list_head *list;
+    GET_LIST(list);
     list_destroy(&list);
 }
 /* }}} */
@@ -432,14 +446,12 @@ PHP_MINIT_FUNCTION(linklist)
 	zend_class_entry ce;
 	INIT_CLASS_ENTRY(ce, "Lb\\Linklist", linklist_methods);
 	linklist_ce = zend_register_internal_class(&ce TSRMLS_CC);
-	zv_linklist = emalloc(sizeof(zval));
-	
+    zend_declare_property_null(linklist_ce, ZEND_STRL("_list"), ZEND_ACC_PRIVATE);
 	return (SUCCESS);
 }
 
 PHP_MSHUTDOWN_FUNCTION(linklist)
 {
-	efree(zv_linklist);
 	return (SUCCESS);
 }
 
